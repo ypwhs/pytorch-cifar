@@ -6,8 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torch.autograd import Variable
-
 
 class ShuffleBlock(nn.Module):
     def __init__(self, groups):
@@ -18,7 +16,7 @@ class ShuffleBlock(nn.Module):
         '''Channel shuffle: [N,C,H,W] -> [N,g,C/g,H,W] -> [N,C/g,g,H,w] -> [N,C,H,W]'''
         N,C,H,W = x.size()
         g = self.groups
-        return x.view(N,g,C/g,H,W).permute(0,2,1,3,4).contiguous().view(N,C,H,W)
+        return x.view(N,g,C//g,H,W).permute(0,2,1,3,4).reshape(N,C,H,W)
 
 
 class Bottleneck(nn.Module):
@@ -104,7 +102,7 @@ def ShuffleNetG3():
 
 def test():
     net = ShuffleNetG2()
-    x = Variable(torch.randn(1,3,32,32))
+    x = torch.randn(1,3,32,32)
     y = net(x)
     print(y)
 
